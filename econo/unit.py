@@ -8,6 +8,7 @@ A Unit's state is a dictionary with the following structure:
             performing another operation
     career: (string) key into the careers dictionary
     balance: (float) the total currency balance the unit posesses
+    name: (string) a unique identifier for the unit
 """
 import logging; logger = logging.getLogger(__name__)
 from collections import namedtuple
