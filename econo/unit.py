@@ -1,5 +1,13 @@
 """
 econo.unit -- classes and operations for representing units (people)
+
+A Unit's state is a dictionary with the following structure:
+
+    age: (integer) the number of time steps the unit has existed
+    busy: (integer) the number of time steps the unit must wait before
+            performing another operation
+    career: (string) key into the careers dictionary
+    balance: (float) the total currency balance the unit posesses
 """
 import logging; logger = logging.getLogger(__name__)
 from collections import namedtuple
