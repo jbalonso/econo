@@ -11,6 +11,9 @@ setup(
     platforms = ["any"],
     description = "Zero-forecast economic simulation",
     packages=find_packages(),
+    install_requires=[
+        'pyyaml',
+        ],
     entry_points={
         'console_scripts':
             ['econo = econo.cli:main',
