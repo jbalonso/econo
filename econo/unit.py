@@ -79,3 +79,14 @@ def new_name(career):
     NEXT_UNIT_ID[career] += 1
     name = '%s_%04d' % (career, NEXT_UNIT_ID[career])
     return name
+
+def spawn_unit(t, careers, units, parent):
+    """
+    Add a new unit to the units dictionary, assigning it the currently most
+    lucrative career
+    """
+    career = max(careers.keys(), key=lambda k: careers[k]['avg_earnings'])
+    name = new_name(career)
+    units[name] = dict(age=0, busy=0, career=career, balance=0, name=name)
+    logger.info('t=%60d: %r gives birth to %r', t, parent, name)
+    return name
