@@ -45,3 +45,26 @@ def choose_op(market, ops, rate, balance, min_balance, max_time):
             best_rate = profit_rate
 
     return (best_op, best_rate)
+
+def perform_op(market, unit_state, op):
+    """
+    Given a market, a unit state, an operation, and a precomputed profit,
+    update the market and unit state to reflect the performance of an option
+    """
+    # Update balance
+    unit_state['balance'] += profit
+
+    # Operation complete if performing noop
+    if op is None:
+        return
+
+    # Purchase resources
+    for resource, count in op.costs.iteritems():
+        buy(market, resource, qty=count)
+
+    # Sell resources
+    for resource, count in op.products.iteritems():
+        sell(market, resource, qty=count)
+
+    # Spend time
+    unit_state['busy'] += op.time
