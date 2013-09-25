@@ -20,7 +20,7 @@ from .market import sell, buy, price_op
 # - time: number of time steps consumed by unit
 Op = namedtuple('Op', 'costs products time')
 
-def choose_op(market, ops, rate, balance, min_balance):
+def choose_op(market, ops, rate, balance, min_balance, max_time):
     """
     Given a market, a set of valid operations, an interest rate, and a starting
     balance, determine the most profitable operation to perform
@@ -37,6 +37,8 @@ def choose_op(market, ops, rate, balance, min_balance):
     for op in ops:
         profit_rate, _, low_balance = price_op(market, op, rate, balance)
         if low_balance < min_balance:
+            continue
+        elif op.time > max_time:
             continue
         elif profit_rate > best_rate:
             best_op = op
