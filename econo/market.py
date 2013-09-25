@@ -85,7 +85,6 @@ def price_op(market, op, rate, balance):
     Compute the per time step profit (loss) on an operation given a market,
     operation, starting balance, and a per time step interest rate.
     """
-
     # Compute the total cost of resource dependencies
     cost = 0.0
     for resource, count in op.costs.iteritems():
