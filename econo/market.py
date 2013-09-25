@@ -98,7 +98,7 @@ def price_op(market, op, rate, balance):
 
     # Compute the earnings amount
     earnings = 0.0
-    for resource, ocunt in op.products.iteritems():
+    for resource, count in op.products.iteritems():
         earnings += bid_at(market, resource, qty=count)
 
     # Compute the profit
