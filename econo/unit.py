@@ -11,7 +11,7 @@ A Unit's state is a dictionary with the following structure:
     name: (string) a unique identifier for the unit
 """
 import logging; logger = logging.getLogger(__name__)
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from .market import sell, buy, price_op
 
@@ -69,3 +69,13 @@ def perform_op(market, unit_state, op):
 
     # Spend time
     unit_state['busy'] += op.time
+
+NEXT_UNIT_ID = defaultdict(lambda: 0)
+def new_name(career):
+    """
+    Generate a new, hopefully unique name for a unit
+    """
+    global NEXT_UNIT_ID
+    NEXT_UNIT_ID[career] += 1
+    name = '%s_%04d' % (career, NEXT_UNIT_ID[career])
+    return name
