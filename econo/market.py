@@ -106,4 +106,4 @@ def price_op(market, op, rate, balance):
     profit = earnings - cost
 
     # Compute the earnings rate and minimum balance
-    return ((profit / op.time), balance - cost)
+    return ((profit / op.time), profit, balance - cost)
