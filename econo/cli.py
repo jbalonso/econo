@@ -27,7 +27,7 @@ def main():
     subparser = subparsers.add_parser('run', help=cmd_run.__doc__)
     subparser.add_argument('-s', '--steps', type=int, default=10000,
             help='Number of steps to simulate (default %(default)d)')
-    subparser.add_argument('description-file', type=FileType, nargs='+',
+    subparser.add_argument('description_file', type=FileType('r'), nargs='+',
             help='One or more YAML files containing economic descriptions to be'
                  'read in order')
     subparser.set_defaults(func=cmd_run)
@@ -53,8 +53,11 @@ def cmd_run(args):
     """
     description = {}
     for desc_file in args.description_file:
-        with desc_file:
-            description.update(load_yaml(desc_file))
+        data = load_yaml(desc_file)
+        if data is None:
+            data = {}
+        description.update(data)
+        desc_file.close()
 
     # Extract major data substructures
     config_system = description.get('system', None)
@@ -82,7 +85,7 @@ def cmd_run(args):
         logger.error(exc.message, exc_info=True)
         exit(1)
     t_0 = config_system['t']
-    rate = config_system['rate']
+    rate = config_system['interest_rate']
     min_balance = config_system['min_balance']
 
     # Parse the data substructures
