@@ -106,3 +106,38 @@ def price_op(market, op, rate, balance):
 
     # Compute the earnings rate and minimum balance
     return ((profit / op.time), profit, balance - cost)
+
+def parse_market(config_market):
+    """
+    Convert a dictionary describing market conditions into an appropriate family
+    of data structures. This mostly involves validation.
+    """
+    # The output is the same as the input
+    market = config_market
+
+    # Make sure that food and babykits are present
+    if 'food' not in market:
+        raise ValueError('Market must contiain food')
+    if 'babykits' not in market:
+        raise ValueError('Market must contain babykits')
+
+    # Make sure that each resource is fully specified
+    logger.debug('validating resources')
+    for resource, rec in market.items():
+        logger.debug('... %s', resource)
+        if rec['type'] not in ['linear', 'exponential']:
+            raise ValueError('resource type neither linear nor exponential')
+        if not isinstance(rec['delta'], int):
+            raise ValueError('resource delta is not an integer')
+        if not isinstance(rec['initial'], float):
+            raise ValueError('initial resource value is not a float')
+        if not isinstance(rec['rate'], float):
+            raise ValueError('resource value model is not a float')
+
+    return market
+
+def save_market(market):
+    """
+    Rewrite market structure into a format that can be serialized
+    """
+    return market
