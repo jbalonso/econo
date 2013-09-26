@@ -242,6 +242,8 @@ def parse_units(config_units, careers):
     data structures. This mostly involves validation and setting defaults.
     """
     # The output is the same as the input, initially
+    if not isinstance(config_units, dict):
+        raise ValueError('units configuration is not a dictionary')
     units = config_units
 
     # Iterate over each unit
