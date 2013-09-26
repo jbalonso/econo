@@ -177,6 +177,10 @@ def parse_careers(config_careers, market):
         rec['stats'] = {}
         rec['ops'] = []
 
+        # Make sure the input is a dictionary
+        if not isinstance(config_rec, dict):
+            raise ValueError('career configuration is not a dictionary')
+
         # Copy over statistics
         if 'stats' in config_rec:
             rec['stats'] = config_rec['stats']
@@ -185,11 +189,18 @@ def parse_careers(config_careers, market):
         if not isinstance(config_rec['ops'], dict):
             raise ValueError('careers.ops is not a dictionary')
         for op_name, config_op in config_rec['ops'].items():
-            op = Op(op_name, config_op['costs'], config_op['products'],
+            # Make sure the input is a dictionary
+            if not isinstance(config_op, dict):
+                raise ValueError('op configuration is not a dictionary')
+
+            # Build the Op object
+            costs = config_op['costs'] or {}
+            products = config_op['products'] or {}
+            op = Op(op_name, costs, products,
                     config_op['time'])
 
             # Make sure all resources are in the market
-            for resource in set(op.costs.keys()) + set(op.products.keys()):
+            for resource in set(op.costs.keys()) | set(op.products.keys()):
                 if resource not in market:
                     raise ValueError('... resource %r used to %r not found in'
                                      ' market' % (resource, op.name))
