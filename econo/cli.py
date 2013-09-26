@@ -27,6 +27,8 @@ def main():
     subparser = subparsers.add_parser('run', help=cmd_run.__doc__)
     subparser.add_argument('-s', '--steps', type=int, default=10000,
             help='Number of steps to simulate (default %(default)d)')
+    subparser.add_argument('-i', '--report-interval', type=int, default=100,
+            help='Number of steps between reports (default %(default)d)')
     subparser.add_argument('description_file', type=FileType('r'), nargs='+',
             help='One or more YAML files containing economic descriptions to be'
                  'read in order')
@@ -104,7 +106,7 @@ def cmd_run(args):
     for t in xrange(t_0, t_0 + args.steps):
         step_time(t, market, careers, units, rate, min_balance=min_balance,
                 max_age=max_age, eat_every=eat_every, spawn_every=spawn_every)
-        if (t % 100) == 0:
+        if (t % args.report_interval) == 0:
             logger.info('market: %r',
                         {k: ask_at(market, k) for k in market})
 
