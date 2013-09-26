@@ -16,10 +16,11 @@ from collections import namedtuple, defaultdict
 from .market import sell, buy, price_op, ask_at
 
 # The Op class takes three components: costs, products, and time
+# - name: friendly name for the operation
 # - costs: dictionary mapping resource names to quantities consumed
 # - products: dictionary mapping resource names to quantities produced
 # - time: number of time steps consumed by unit
-Op = namedtuple('Op', 'costs products time')
+Op = namedtuple('Op', 'name costs products time')
 
 def choose_op(market, ops, rate, balance, min_balance, max_time):
     """
