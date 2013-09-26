@@ -128,6 +128,8 @@ def parse_market(config_market):
     logger.debug('validating resources')
     for resource, rec in market.items():
         logger.debug('... %s', resource)
+        if not isinstance(rec, dict):
+            raise ValueError('resource configuration is not a dictionary')
         if rec['type'] not in ['linear', 'exponential']:
             raise ValueError('resource type neither linear nor exponential')
         if not isinstance(rec['delta'], int):
