@@ -113,6 +113,8 @@ def parse_market(config_market):
     of data structures. This mostly involves validation.
     """
     # The output is the same as the input
+    if not isinstance(config_market, dict):
+        raise ValueError('market configuration is not a dictionary')
     market = config_market
 
     # Make sure that food and babykits are present
