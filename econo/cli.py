@@ -93,11 +93,16 @@ def cmd_run(args):
     t_0 = config_system['t']
     rate = config_system['interest_rate']
     min_balance = config_system['min_balance']
+    max_age = config_system['max_age']
+    eat_every = config_system['eat_every']
+    spawn_every = config_system['spawn_every']
 
     # Run the economy
+    from .market import ask_at
     for t in xrange(t_0, t_0 + args.steps):
         step_time(t, market, careers, units, rate, min_balance=min_balance,
                 max_age=max_age, eat_every=eat_every, spawn_every=spawn_every)
+        logger.debug('market: %r', {k: ask_at(market, k) for k in market})
 
     # Save the results
     config_system['t'] = t

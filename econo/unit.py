@@ -37,8 +37,9 @@ def choose_op(market, ops, rate, balance, min_balance, max_time):
     # Determine the most profitable operation
     best_op = None
     best_rate = noop_profit
+    best_profit = noop_profit
     for op in ops:
-        profit_rate, _, low_balance = price_op(market, op, rate, balance)
+        profit_rate, profit, low_balance = price_op(market, op, rate, balance)
         if low_balance < min_balance:
             continue
         elif op.time > max_time:
@@ -46,10 +47,11 @@ def choose_op(market, ops, rate, balance, min_balance, max_time):
         elif profit_rate > best_rate:
             best_op = op
             best_rate = profit_rate
+            best_profit = profit
 
-    return (best_op, best_rate)
+    return (best_op, best_profit, best_rate)
 
-def perform_op(market, unit_state, op):
+def perform_op(market, unit_state, op, profit):
     """
     Given a market, a unit state, an operation, and a precomputed profit,
     update the market and unit state to reflect the performance of an option
@@ -91,7 +93,7 @@ def spawn_unit(t, careers, units, parent):
             careers[k]['stats']['avg_earnings'])
     name = new_name(career)
     units[name] = dict(age=0, busy=0, career=career, balance=0, name=name)
-    logger.info('t=%60d: %r gives birth to %r', t, parent, name)
+    logger.info('t=%06d: %r gives birth to %r', t, parent, name)
     return name
 
 def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
@@ -103,43 +105,43 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
     unit_list.sort(key=lambda x: x[1]['balance'], reverse=True)
     for key, unit_state in unit_list:
         # Eat if necessary
-        if (unit_state['age'] % eat_every) == 0:
+        if (-unit_state['age'] % eat_every) == 1:
             cost = ask_at(market, 'food')
             if (unit_state['balance'] - cost) < min_balance:
-                logger.warn('t=%60d: unit %(name)r (age %(age)d) starved', t,
-                        unit_state)
+                logger.warn('unit %(name)r (age %(age)d) starved', unit_state)
                 units.pop(key)
             else:
                 unit_state['balance'] -= cost
                 buy(market, 'food')
-                spawn_unit(careers, units, key)
 
         # Spawn if appropriate and able
-        if (unit_state['age'] % spawn_every) == 0:
-            cost = ask_at(market, 'babykit')
+        if (-unit_state['age'] % spawn_every) == 1:
+            cost = ask_at(market, 'babykits')
             if (unit_state['balance'] - cost) < min_balance:
-                logger.warn('t=%60d: unit %(name)r (age %(age)d) could not'
-                            ' spawn', t, unit_state)
-                units.pop(key)
+                logger.warn('unit %(name)r (age %(age)d) could not'
+                            ' spawn', unit_state)
             else:
                 unit_state['balance'] -= cost
-                buy(market, 'babykit')
+                buy(market, 'babykits')
                 spawn_unit(t, careers, units, key)
 
         # Choose and perform an operation
         if unit_state['busy'] == 0:
             ops = careers[unit_state['career']]['ops']
             balance = unit_state['balance']
-            max_time = max_age - unit_stage['age']
-            op = choose_op(market, ops, rate, balance, min_balance, max_time)
-            perform_op(market, unit_state, op)
+            max_time = max_age - unit_state['age']
+            op, profit, _ = choose_op(market, ops, rate, balance, min_balance,
+                                      max_time)
+            perform_op(market, unit_state, op, profit)
         else:
             unit_state['busy'] -= 1
 
         # Age the unit
         unit_state['age'] += 1
         if unit_state['age'] >= max_age:
-            logger.info('t=%60d: unit %r dies of old age', t, key)
+            logger.info('t=%06d: unit %r dies of old age', t, key)
+            if key in units:
+                units.pop(key)
 
     # Compute avg_earnings per career and other aggregate stats
     for career_rec in careers.values():
@@ -155,7 +157,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         career_rec['stats']['avg_earnings'] = (
             career_rec['stats']['total_balance'] /
             career_rec['stats']['total_age'])
-        logger.info('t=%60d: career %s: %r', t, career, career_rec['stats'])
+        logger.info('t=%06d: career %s: %r', t, career, career_rec['stats'])
 
 def parse_careers(config_careers, market):
     """

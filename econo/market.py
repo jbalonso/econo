@@ -19,7 +19,7 @@ def bid_at(market, resource, qty=1):
     # Extract the market record for the resource
     assert resource in market, "Resource must be in the market"
     assert qty >= 0, "Quantity must be non-negative"
-    rec = market[resource]
+    res = market[resource]
     type_name, initial, delta, rate = (res['type'], res['initial'],
             res['delta'], res['rate'])
 
@@ -54,7 +54,7 @@ def ask_at(market, resource, qty=1):
     # Extract the market record for the resource
     assert resource in market, "Resource must be in the market"
     assert qty >= 0, "Quantity must be non-negative"
-    rec = market[resource]
+    res = market[resource]
     type_name, initial, delta, rate = (res['type'], res['initial'],
             res['delta'], res['rate'])
 
@@ -93,9 +93,9 @@ def price_op(market, op, rate, balance):
 
     # Compute the loan amount
     if cost > balance:
-        loan = max(0.0, cost - balance)
-        loan *= (1.0 + rate) ** op.time
-        cost += loan - (cost - balance)
+        loan = cost - balance
+        loan *= ((1.0 + rate) ** op.time) - 1.0
+        cost += loan
 
     # Compute the earnings amount
     earnings = 0.0
