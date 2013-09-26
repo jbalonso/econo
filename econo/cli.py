@@ -108,6 +108,10 @@ def cmd_run(args):
             logger.info('market: %r',
                         {k: ask_at(market, k) for k in market})
 
+            res_stats = {k: '%(bought)d bot, %(sold)d sld'
+                            % market[k] for k in market}
+            logger.info('market: %r', res_stats)
+
     # Save the results
     config_system['t'] = t
     results = dict(system=config_system,

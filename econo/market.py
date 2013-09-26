@@ -45,7 +45,7 @@ def sell(market, resource, qty=1):
     assert qty >= 0, "Quantity must be non-negative"
     rec = market[resource]
     rec['delta'] -= qty
-
+    rec['sold'] += qty
 
 def ask_at(market, resource, qty=1):
     """
@@ -80,6 +80,7 @@ def buy(market, resource, qty=1):
     assert qty >= 0, "Quantity must be non-negative"
     rec = market[resource]
     rec['delta'] += qty
+    rec['bought'] += qty
 
 def price_op(market, op, rate, balance):
     """
@@ -138,6 +139,11 @@ def parse_market(config_market):
             raise ValueError('initial resource value is not a float')
         if not isinstance(rec['rate'], float):
             raise ValueError('resource value model is not a float')
+        for param in ['bought', 'sold']:
+            if param not in rec:
+                rec[param] = 0
+            elif not isinstance(rec[param], int):
+                raise ValueError('resource %r count not an integer' % param)
 
     return market
 
