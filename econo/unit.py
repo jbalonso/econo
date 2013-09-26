@@ -118,8 +118,8 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         if (unit_state['age'] % spawn_every) == 0:
             cost = ask_at(market, 'babykit')
             if (unit_state['balance'] - cost) < min_balance:
-                logger.warn('t=%60d: unit %(name)r (age %(age)d) could not
-                        spawn', t, unit_state)
+                logger.warn('t=%60d: unit %(name)r (age %(age)d) could not'
+                            ' spawn', t, unit_state)
                 units.pop(key)
             else:
                 unit_state['balance'] -= cost
@@ -152,8 +152,9 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         careers[career]['stats']['total_age'] += unit_state['age']
         careers[career]['stats']['population'] += 1
     for career, career_rec in careers.items():
-        career_rec['stats']['avg_earnings'] =
-        (career_rec['stats']['total_balance'] / career_rec['stats']['total_age'])
+        career_rec['stats']['avg_earnings'] = (
+            career_rec['stats']['total_balance'] /
+            career_rec['stats']['total_age'])
         logger.info('t=%60d: career %s: %r', t, career, career_rec['stats'])
 
 def parse_careers(config_careers, market):
