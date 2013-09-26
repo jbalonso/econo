@@ -10,6 +10,7 @@ following form:
     initial: (float) the cost of the resource at delta=0
     
 """
+import logging; logger = logging.getLogger(__name__)
 
 def bid_at(market, resource, qty=1):
     """
