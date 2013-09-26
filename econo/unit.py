@@ -6,6 +6,8 @@ A Unit's state is a dictionary with the following structure:
     age: (integer) the number of time steps the unit has existed
     busy: (integer) the number of time steps the unit must wait before
             performing another operation
+    eat_phase: (integer) eat when age == eat_phase (mod eat_every)
+    spawn_phase: (integer) eat when age == spawn_phase (mod spawn_every)
     career: (string) key into the careers dictionary
     balance: (float) the total currency balance the unit posesses
     name: (string) a unique identifier for the unit
@@ -13,6 +15,7 @@ A Unit's state is a dictionary with the following structure:
 import logging; logger = logging.getLogger(__name__)
 from collections import namedtuple, defaultdict
 from copy import deepcopy
+from random import randint
 
 from .market import sell, buy, price_op, ask_at
 
@@ -84,7 +87,7 @@ def new_name(career):
     name = '%s_%04d' % (career, NEXT_UNIT_ID[career])
     return name
 
-def spawn_unit(t, careers, units, parent):
+def spawn_unit(t, careers, units, parent, eat_every, spawn_every):
     """
     Add a new unit to the units dictionary, assigning it the currently most
     lucrative career
@@ -92,7 +95,9 @@ def spawn_unit(t, careers, units, parent):
     career = max(careers.keys(), key=lambda k:
             careers[k]['stats']['avg_earnings'])
     name = new_name(career)
-    units[name] = dict(age=0, busy=0, career=career, balance=0, name=name)
+    units[name] = dict(age=0, busy=0, career=career, balance=0, name=name,
+            spawn_phase=randint(0, spawn_every - 1), eat_phase=randint(0,
+                eat_every - 1))
     logger.info('t=%06d: %r gives birth to %r', t, parent, name)
     return name
 
@@ -105,7 +110,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
     unit_list.sort(key=lambda x: x[1]['balance'], reverse=True)
     for key, unit_state in unit_list:
         # Eat if necessary
-        if (-unit_state['age'] % eat_every) == 1:
+        if (unit_state['age'] % eat_every) == unit_state['eat_phase']:
             cost = ask_at(market, 'food')
             if (unit_state['balance'] - cost) < min_balance:
                 logger.warn('unit %(name)r (age %(age)d) starved', unit_state)
@@ -115,7 +120,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
                 buy(market, 'food')
 
         # Spawn if appropriate and able
-        if (-unit_state['age'] % spawn_every) == 1:
+        if (unit_state['age'] % spawn_every) == unit_state['spawn_phase']:
             cost = ask_at(market, 'babykits')
             if (unit_state['balance'] - cost) < min_balance:
                 logger.warn('unit %(name)r (age %(age)d) could not'
@@ -123,7 +128,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
             else:
                 unit_state['balance'] -= cost
                 buy(market, 'babykits')
-                spawn_unit(t, careers, units, key)
+                spawn_unit(t, careers, units, key, eat_every, spawn_every)
 
         # Choose and perform an operation
         if unit_state['busy'] == 0:
@@ -255,6 +260,10 @@ def parse_units(config_units, careers):
         for param in ['age', 'busy', 'career', 'balance']:
             if param not in u_rec:
                 raise ValueError('unit %r lacking a(n) %r' % (u_name, param))
+        for param in ['eat_phase', 'spawn_phase']:
+            if param not in u_rec:
+                logger.warn('unit %r getting default %s of 0', u_name, param)
+                u_rec[param] = 0
         u_rec['name'] = u_name
         if u_rec['career'] not in careers:
             raise ValueError('unit %r has career %r, but that career is unknown'
