@@ -7,7 +7,7 @@ from yaml import (safe_load as load_yaml, dump as save_yaml)
 from sys import exit
 
 from .unit import (parse_careers, parse_units, step_time, save_careers,
-        save_units)
+        save_units, parse_unit_ids, save_unit_ids)
 from .market import (parse_market, save_market)
 
 VERSION = 0.1
@@ -64,6 +64,7 @@ def cmd_run(args):
     config_market = description.get('market', None)
     config_careers = description.get('careers', None)
     config_units = description.get('units', None)
+    config_unit_ids = description.get('next_unit_ids', None)
 
     # Validate the system data substructure
     try:
@@ -86,6 +87,7 @@ def cmd_run(args):
         market = parse_market(config_market)
         careers = parse_careers(config_careers, market)
         units = parse_units(config_units, careers)
+        parse_unit_ids(config_unit_ids)
     except (KeyError, ValueError) as exc:
         logger.error(exc.message, exc_info=True)
         exit(1)
@@ -111,5 +113,6 @@ def cmd_run(args):
     results = dict(system=config_system,
                    market=save_market(market),
                    careers=save_careers(careers),
-                   units=save_units(units))
+                   units=save_units(units),
+                   next_unit_ids=save_unit_ids())
     print save_yaml(results)

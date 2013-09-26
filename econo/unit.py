@@ -287,3 +287,19 @@ def save_units(units):
         u_rec.pop('name')
 
     return config_units
+
+def parse_unit_ids(config_unit_ids):
+    """
+    Load unit id table
+    """
+    global NEXT_UNIT_ID
+    if not isinstance(config_unit_ids, dict):
+        return
+    for career, next_id in config_unit_ids.items():
+        NEXT_UNIT_ID[career] = next_id
+
+def save_unit_ids():
+    """
+    Save unit id table
+    """
+    return dict(NEXT_UNIT_ID)
