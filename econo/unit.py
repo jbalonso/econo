@@ -163,9 +163,6 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         career_rec['stats']['avg_earnings'] = (
             career_rec['stats']['total_balance'] /
             (career_rec['stats']['total_age'] + 1))
-        if (t % 100) == 0:
-            logger.info('t=%06d: career %s: %r',
-                        t, career, career_rec['stats'])
 
 def parse_careers(config_careers, market):
     """

@@ -113,6 +113,9 @@ def cmd_run(args):
             res_stats = {k: '%(bought)d bot, %(sold)d sld'
                             % market[k] for k in market}
             logger.info('market: %r', res_stats)
+            for career, career_rec in careers.items():
+                logger.info('t=%06d: career %s: %r',
+                            t, career, career_rec['stats'])
 
     # Save the results
     config_system['t'] = t
