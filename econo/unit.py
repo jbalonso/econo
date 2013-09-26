@@ -154,3 +154,71 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         career_rec['stats']['avg_earnings'] =
         (career_rec['stats']['total_balance'] / career_rec['stats']['total_age'])
         logger.info('t=%60d: career %s: %r', t, career, career_rec['stats'])
+
+def parse_careers(config_careers, market):
+    """
+    Convert a dictionary describing careers into an appropriate family of data
+    structures, including Op objects
+    """
+    # Initialize output structure
+    careers = {}
+
+    # Make sure the input is a dictionary
+    if not isinstance(config_careers, dict):
+        raise ValueError('careers configuration is not a dictionary')
+
+    # Process each career
+    for career, config_rec in config_careers.items():
+        # Start building a new record
+        logger.debug('building %r career', career)
+        rec = careers.setdefault(career, {})
+        rec['stats'] = {}
+        rec['ops'] = []
+
+        # Copy over statistics
+        if 'stats' in config_rec:
+            rec['stats'] = config_rec['stats']
+
+        # Convert operations
+        if not isinstance(config_rec['ops'], dict):
+            raise ValueError('careers.ops is not a dictionary')
+        for op_name, config_op in config_rec['ops'].items():
+            op = Op(op_name, config_op['costs'], config_op['products'],
+                    config_op['time'])
+
+            # Make sure all resources are in the market
+            for resource in set(op.costs.keys()) + set(op.products.keys()):
+                if resource not in market:
+                    raise ValueError('... resource %r used to %r not found in'
+                                     ' market' % (resource, op.name))
+
+            # Record the operation
+            logger.debug('... can %r', op.name)
+            rec['ops'].append(op)
+
+    return careers
+
+def save_careers(careers):
+    """
+    Rewrite careers structure into a format that can be serialized
+    """
+    # Initialize output structure
+    config_careers = {}
+
+    # Process each career
+    for career, career_rec in careers.items():
+        # Start building a new record
+        logger.debug('saving %r career', career)
+        rec = config_careers.setdefault(career, {})
+        rec['stats'] = career_rec['stats']
+        rec['ops'] = {}
+
+        # Convert operations
+        for op in career_rec['ops']:
+            op_rec = rec['ops'].setdefault(op.name, {})
+            op_rec['costs'] = op.costs
+            op_rec['products'] = op.products
+            op_rec['time'] = op.time
+            logger.debug('... with operation %r', op.name)
+
+    return config_careers
