@@ -34,6 +34,11 @@ def main():
 
     # Parse options
     args = parser.parse_args()
+
+    # Initialize logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    # Run command
     args.func(args)
 
 def cmd_new(args):
