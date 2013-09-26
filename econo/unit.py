@@ -85,7 +85,8 @@ def spawn_unit(t, careers, units, parent):
     Add a new unit to the units dictionary, assigning it the currently most
     lucrative career
     """
-    career = max(careers.keys(), key=lambda k: careers[k]['avg_earnings'])
+    career = max(careers.keys(), key=lambda k:
+            careers[k]['stats']['avg_earnings'])
     name = new_name(career)
     units[name] = dict(age=0, busy=0, career=career, balance=0, name=name)
     logger.info('t=%60d: %r gives birth to %r', t, parent, name)
@@ -140,15 +141,15 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
 
     # Compute avg_earnings per career and other aggregate stats
     for career_rec in careers.values():
-        career_rec['total_balance'] = 0.0
-        career_rec['total_age'] = 0
-        career_rec['population'] = 0
+        career_rec['stats']['total_balance'] = 0.0
+        career_rec['stats']['total_age'] = 0
+        career_rec['stats']['population'] = 0
     for key, unit_state in unit_list:
         career = unit_state['career']
-        careers[career]['total_balance'] += unit_state['balance']
-        careers[career]['total_age'] += unit_state['age']
-        careers[career]['population'] += 1
+        careers[career]['stats']['total_balance'] += unit_state['balance']
+        careers[career]['stats']['total_age'] += unit_state['age']
+        careers[career]['stats']['population'] += 1
     for career, career_rec in careers.items():
-        career_rec['avg_earnings'] = (career_rec['total_balance'] /
-                career_rec['total_age'])
-        logger.info('t=%60d: career %s: %r', t, career, career_rec)
+        career_rec['stats']['avg_earnings'] =
+        (career_rec['stats']['total_balance'] / career_rec['stats']['total_age'])
+        logger.info('t=%60d: career %s: %r', t, career, career_rec['stats'])
