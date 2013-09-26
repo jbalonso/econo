@@ -98,7 +98,7 @@ def spawn_unit(t, careers, units, parent, eat_every, spawn_every):
     units[name] = dict(age=0, busy=0, career=career, balance=0, name=name,
             spawn_phase=randint(0, spawn_every - 1), eat_phase=randint(0,
                 eat_every - 1))
-    logger.info('t=%06d: %r gives birth to %r', t, parent, name)
+    logger.debug('t=%06d: %r gives birth to %r', t, parent, name)
     return name
 
 def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
@@ -113,7 +113,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         if (unit_state['age'] % eat_every) == unit_state['eat_phase']:
             cost = ask_at(market, 'food')
             if (unit_state['balance'] - cost) < min_balance:
-                logger.warn('unit %(name)r (age %(age)d) starved', unit_state)
+                logger.debug('unit %(name)r (age %(age)d) starved', unit_state)
                 units.pop(key)
             else:
                 unit_state['balance'] -= cost
@@ -123,8 +123,8 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         if (unit_state['age'] % spawn_every) == unit_state['spawn_phase']:
             cost = ask_at(market, 'babykits')
             if (unit_state['balance'] - cost) < min_balance:
-                logger.warn('unit %(name)r (age %(age)d) could not'
-                            ' spawn', unit_state)
+                logger.debug('unit %(name)r (age %(age)d) could not'
+                             ' spawn', unit_state)
             else:
                 unit_state['balance'] -= cost
                 buy(market, 'babykits')
@@ -144,7 +144,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         # Age the unit
         unit_state['age'] += 1
         if unit_state['age'] >= max_age:
-            logger.info('t=%06d: unit %r dies of old age', t, key)
+            logger.debug('t=%06d: unit %r dies of old age', t, key)
             if key in units:
                 units.pop(key)
 
@@ -162,7 +162,9 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         career_rec['stats']['avg_earnings'] = (
             career_rec['stats']['total_balance'] /
             career_rec['stats']['total_age'])
-        logger.info('t=%06d: career %s: %r', t, career, career_rec['stats'])
+        if (t % 100) == 0:
+            logger.info('t=%06d: career %s: %r',
+                        t, career, career_rec['stats'])
 
 def parse_careers(config_careers, market):
     """

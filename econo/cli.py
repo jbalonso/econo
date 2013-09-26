@@ -36,7 +36,7 @@ def main():
     args = parser.parse_args()
 
     # Initialize logging
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     # Run command
     args.func(args)
@@ -102,7 +102,9 @@ def cmd_run(args):
     for t in xrange(t_0, t_0 + args.steps):
         step_time(t, market, careers, units, rate, min_balance=min_balance,
                 max_age=max_age, eat_every=eat_every, spawn_every=spawn_every)
-        logger.debug('market: %r', {k: ask_at(market, k) for k in market})
+        if (t % 100) == 0:
+            logger.info('market: %r',
+                        {k: ask_at(market, k) for k in market})
 
     # Save the results
     config_system['t'] = t
