@@ -81,17 +81,18 @@ def cmd_run(args):
             raise ValueError('eat interval is not an integer')
         if not isinstance(config_system['spawn_every'], int):
             raise ValueError('spawn interval is not an integer')
+
+        # Parse the data substructures
+        market = parse_market(config_market)
+        careers = parse_careers(config_careers, market)
+        units = parse_units(config_units, careers)
     except (KeyError, ValueError) as exc:
         logger.error(exc.message, exc_info=True)
         exit(1)
+
     t_0 = config_system['t']
     rate = config_system['interest_rate']
     min_balance = config_system['min_balance']
-
-    # Parse the data substructures
-    market = parse_market(config_market)
-    careers = parse_careers(config_careers, market)
-    units = parse_units(config_units, careers)
 
     # Run the economy
     for t in xrange(t_0, t_0 + args.steps):
