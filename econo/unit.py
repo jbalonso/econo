@@ -106,8 +106,9 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
     """
     """
     # Iterate over all units in order of balance
+    # TODO: Make the direction of order configurable
     unit_list = [(k, v) for k, v in units.items()]
-    unit_list.sort(key=lambda x: x[1]['balance'], reverse=True)
+    unit_list.sort(key=lambda x: x[1]['balance'], reverse=False)
     for key, unit_state in unit_list:
         # Eat if necessary
         if (unit_state['age'] % eat_every) == unit_state['eat_phase']:
