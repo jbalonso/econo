@@ -12,6 +12,7 @@ A Unit's state is a dictionary with the following structure:
 """
 import logging; logger = logging.getLogger(__name__)
 from collections import namedtuple, defaultdict
+from copy import deepcopy
 
 from .market import sell, buy, price_op, ask_at
 
@@ -222,3 +223,39 @@ def save_careers(careers):
             logger.debug('... with operation %r', op.name)
 
     return config_careers
+
+def parse_units(config_units, careers):
+    """
+    Convert a dictionary describing units (people) into an appropriate family of
+    data structures. This mostly involves validation and setting defaults.
+    """
+    # The output is the same as the input, initially
+    units = config_units
+
+    # Iterate over each unit
+    logger.debug('validating units')
+    for u_name, u_rec in units.iteritems():
+        logger.debug('... %s', u_name)
+        for param in ['age', 'busy', 'career', 'balance']:
+            if param not in u_rec:
+                raise ValueError('unit %r lacking a(n) %r' % (u_name, param))
+        u_rec['name'] = u_name
+        if u_rec['career'] not in careers:
+            raise ValueError('unit %r has career %r, but that career is unknown'
+                    % (u_name, u_rec['career']))
+
+    return units
+
+def save_units(units):
+    """
+    Rewrite units structure into a format that can be serialized. This mostly
+    involves stripping out redundant name data.
+    """
+    # Perform a deep copy on the input structure
+    config_units = deepcopy(units)
+
+    # Strip out excess name strucutres
+    for u_name, u_rec in config_units.iteritems():
+        u_rec.pop('name')
+
+    return config_units
