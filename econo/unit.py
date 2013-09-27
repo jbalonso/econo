@@ -93,7 +93,7 @@ def spawn_unit(t, careers, units, parent, eat_every, spawn_every):
     lucrative career
     """
     career = max(careers.keys(), key=lambda k:
-            careers[k]['stats']['avg_earnings'])
+            careers[k]['stats']['avg_profit'])
     name = new_name(career)
     units[name] = dict(age=0, busy=0, career=career, balance=0, name=name,
             spawn_phase=randint(0, spawn_every - 1), eat_phase=randint(0,
@@ -105,6 +105,14 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         eat_every=100, spawn_every=200):
     """
     """
+    # Reset aggregate statistics
+    for career_rec in careers.values():
+        career_rec['stats']['total_balance'] = 0.0
+        career_rec['stats']['total_age'] = 0
+        career_rec['stats']['population'] = 0
+        career_rec['stats']['total_profit'] = 0.0
+        career_rec['stats'].setdefault('avg_profit', 0.0)
+
     # Iterate over all units in order of balance
     # TODO: Make the direction of order configurable
     unit_list = [(k, v) for k, v in units.items()]
@@ -139,6 +147,7 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
             op, profit, _ = choose_op(market, ops, rate, balance, min_balance,
                                       max_time)
             perform_op(market, unit_state, op, profit)
+            careers[unit_state['career']]['stats']['total_profit'] += profit
         else:
             unit_state['busy'] -= 1
 
@@ -150,10 +159,6 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
                 units.pop(key)
 
     # Compute avg_earnings per career and other aggregate stats
-    for career_rec in careers.values():
-        career_rec['stats']['total_balance'] = 0.0
-        career_rec['stats']['total_age'] = 0
-        career_rec['stats']['population'] = 0
     for key, unit_state in unit_list:
         career = unit_state['career']
         careers[career]['stats']['total_balance'] += unit_state['balance']
@@ -163,6 +168,9 @@ def step_time(t, market, careers, units, rate, min_balance=-100, max_age=1000,
         career_rec['stats']['avg_earnings'] = (
             career_rec['stats']['total_balance'] /
             (career_rec['stats']['total_age'] + 1))
+        career_rec['stats']['avg_profit'] = (
+                career_rec['stats']['total_profit'] /
+                (career_rec['stats']['population'] + 1))
 
 def parse_careers(config_careers, market):
     """
