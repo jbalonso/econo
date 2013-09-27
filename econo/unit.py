@@ -43,7 +43,7 @@ def choose_op(market, ops, rate, balance, min_balance, max_time):
     best_profit = noop_profit
     for op in ops:
         profit_rate, profit, low_balance = price_op(market, op, rate, balance)
-        if low_balance < min_balance:
+        if low_balance < min_balance and low_balance < balance:
             continue
         elif op.time > max_time:
             continue
