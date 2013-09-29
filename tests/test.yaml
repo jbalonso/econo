@@ -12,16 +12,19 @@ market:
     delta: 0
     initial: 200.0
     rate: 1.1
+    inflation_rate: 0.005
   food:
     type: exponential
     delta: 0
     initial: 1.0
     rate: 1.1
+    inflation_rate: 0.005
   babykits:
     type: exponential
     delta: 0
     initial: 200.0
     rate: 1.1
+    inflation_rate: 0.005
 
 careers:
   farmer:

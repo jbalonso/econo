@@ -109,6 +109,13 @@ def price_op(market, op, rate, balance):
     # Compute the earnings rate and minimum balance
     return ((profit / op.time), profit, balance - cost)
 
+def inflate(market, population):
+    """
+    Consume goods out of the market
+    """
+    for resource, rec in market.iteritems():
+        rec['delta'] += int(rec['inflation_rate'] * population + 0.5)
+
 def parse_market(config_market):
     """
     Convert a dictionary describing market conditions into an appropriate family
@@ -139,6 +146,8 @@ def parse_market(config_market):
             raise ValueError('initial resource value is not a float')
         if not isinstance(rec['rate'], float):
             raise ValueError('resource value model is not a float')
+        if not isinstance(rec['inflation_rate'], float):
+            raise ValueError('per-capita resource inflation rate is not a float')
         for param in ['bought', 'sold']:
             if param not in rec:
                 rec[param] = 0

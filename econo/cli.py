@@ -8,7 +8,7 @@ from sys import exit
 
 from .unit import (parse_careers, parse_units, step_time, save_careers,
         save_units, parse_unit_ids, save_unit_ids)
-from .market import (parse_market, save_market)
+from .market import (inflate, parse_market, save_market)
 
 VERSION = 0.1
 
@@ -106,8 +106,19 @@ def cmd_run(args):
     # Run the economy
     from .market import ask_at
     for t in xrange(t_0, t_0 + args.steps):
+        # Step time
         step_time(t, market, careers, units, rate, min_balance=min_balance,
                 max_age=max_age, eat_every=eat_every, spawn_every=spawn_every)
+
+        # Calculate population
+        population = 0
+        for career_rec in careers.values():
+            population += career_rec['stats']['population']
+
+        # Inflate
+        inflate(market, population)
+
+        # Display aggregate statistics every report_interval
         if (t % args.report_interval) == 0:
             logger.info('market: %r',
                         {k: ask_at(market, k) for k in market})
