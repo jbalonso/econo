@@ -145,7 +145,7 @@ def parse_market(config_market):
         if not isinstance(rec['initial'], float):
             raise ValueError('initial resource value is not a float')
         if not isinstance(rec['rate'], float):
-            raise ValueError('resource value model is not a float')
+            raise ValueError('resource value model rate is not a float')
         if not isinstance(rec['inflation_rate'], float):
             raise ValueError('per-capita resource inflation rate is not a float')
         for param in ['bought', 'sold']:
