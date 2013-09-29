@@ -54,12 +54,14 @@ def cmd_run(args):
     Simulate an economy for a specified number of steps
     """
     description = {}
+    logger.info('parsing input files...')
     for desc_file in args.description_file:
         data = load_yaml(desc_file)
         if data is None:
             data = {}
         description.update(data)
         desc_file.close()
+    logger.info('input files parsed')
 
     # Extract major data substructures
     config_system = description.get('system', None)
