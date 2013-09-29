@@ -92,8 +92,13 @@ def spawn_unit(t, careers, units, parent, eat_every, spawn_every):
     Add a new unit to the units dictionary, assigning it the currently most
     lucrative career
     """
-    career = max(careers.keys(), key=lambda k:
-            careers[k]['stats']['avg_profit'])
+    empty_careers = [career for career, career_rec in careers.iteritems()
+                     if career_rec['stats']['population'] == 0]
+    if empty_careers:
+        career = empty_careers[0]
+    else:
+        career = max(careers.keys(), key=lambda k:
+                careers[k]['stats']['avg_profit'])
     name = new_name(career)
     units[name] = dict(age=0, busy=0, career=career, balance=0, name=name,
             spawn_phase=randint(0, spawn_every - 1), eat_phase=randint(0,
